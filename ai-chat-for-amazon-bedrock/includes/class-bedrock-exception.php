@@ -62,14 +62,4 @@ class Bedrock_Exception extends \Exception {
 	public function http_status() {
 		return $this->http_status;
 	}
-
-	/**
-	 * Whether a retry could succeed.
-	 *
-	 * @return bool
-	 */
-	public function is_retryable() {
-		return in_array( $this->error_code, array( 'ThrottlingException', 'ServiceUnavailableException', 'InternalServerException', 'ModelNotReadyException' ), true )
-			|| $this->http_status >= 500;
-	}
 }

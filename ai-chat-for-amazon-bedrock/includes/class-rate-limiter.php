@@ -38,14 +38,23 @@ final class Rate_Limiter {
 			return new \WP_Error( 'aicfab_daily_cap', __( 'The assistant has reached its daily limit. Please try again tomorrow.', 'ai-chat-for-amazon-bedrock' ), array( 'status' => 429 ) );
 		}
 
-		$window = (int) floor( time() / 60 );
-		$key    = 'aicfab_rl_' . self::identity() . '_' . $window;
-		$count  = (int) get_transient( $key );
-		if ( $per_minute > 0 && $count >= $per_minute ) {
+		// The window starts at the visitor's first request, so there is no clock-minute boundary at which
+		// a visitor could send twice the limit back to back.
+		$now    = time();
+		$key    = 'aicfab_rl_' . self::identity();
+		$window = get_transient( $key );
+		if ( ! is_array( $window ) || ! isset( $window['start'], $window['count'] ) || $now - (int) $window['start'] >= MINUTE_IN_SECONDS ) {
+			$window = array(
+				'start' => $now,
+				'count' => 0,
+			);
+		}
+		if ( $per_minute > 0 && (int) $window['count'] >= $per_minute ) {
 			return new \WP_Error( 'aicfab_rate_limited', __( 'You are sending messages too quickly. Please wait a minute.', 'ai-chat-for-amazon-bedrock' ), array( 'status' => 429 ) );
 		}
 
-		set_transient( $key, $count + 1, 120 );
+		++$window['count'];
+		set_transient( $key, $window, MINUTE_IN_SECONDS );
 		set_transient( $day_key, $day + 1, DAY_IN_SECONDS + HOUR_IN_SECONDS );
 		return true;
 	}

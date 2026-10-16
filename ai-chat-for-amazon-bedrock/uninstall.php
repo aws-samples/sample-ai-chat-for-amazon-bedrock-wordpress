@@ -1,7 +1,6 @@
 <?php
 /**
- * Removes everything the plugin stored: settings (including the encrypted key), MCP servers and
- * transients (rate-limit counters, cached temporary credentials, admin notices).
+ * Removes everything the plugin stored: settings and transients (rate-limit counters, admin notices).
  *
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
@@ -17,7 +16,6 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 function aicfab_uninstall_site() {
 	global $wpdb;
 	delete_option( 'aicfab_settings' );
-	delete_option( 'aicfab_mcp_servers' );
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time cleanup of dynamic transient keys.
 	$wpdb->query(
 		$wpdb->prepare(

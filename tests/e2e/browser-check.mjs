@@ -29,7 +29,8 @@ page.on( 'dialog', ( d ) => { dialogs++; d.dismiss(); } );
 await page.goto( `${ BASE }/wp-login.php` );
 await page.fill( '#user_login', USER_LOGIN );
 await page.fill( '#user_pass', USER_PASS );
-await Promise.all( [ page.waitForNavigation(), page.click( '#wp-submit' ) ] );
+// The first wp-admin request after install can be slow (cron, upgrade checks).
+await Promise.all( [ page.waitForURL( /wp-admin/, { timeout: 90000 } ), page.click( '#wp-submit' ) ] );
 await page.goto( `${ BASE }/?page_id=${ PAGE_ID }` );
 check( 'chat widget rendered', await page.locator( '[data-aicfab]' ).count() === 1 );
 
@@ -64,15 +65,15 @@ if ( process.env.ADMIN_LOGIN ) {
 	await admin.goto( `${ BASE }/wp-login.php` );
 	await admin.fill( '#user_login', process.env.ADMIN_LOGIN );
 	await admin.fill( '#user_pass', process.env.ADMIN_PASS );
-	await Promise.all( [ admin.waitForNavigation(), admin.click( '#wp-submit' ) ] );
+	await Promise.all( [ admin.waitForURL( /wp-admin/, { timeout: 90000 } ), admin.click( '#wp-submit' ) ] );
 	await admin.goto( `${ BASE }/wp-admin/options-general.php?page=aicfab` );
 	await admin.fill( '#aicfab-title', 'E2E assistant' );
 	await Promise.all( [ admin.waitForNavigation(), admin.click( 'form[action="options.php"] #submit' ) ] );
 	check( 'admin can save settings', ( await admin.locator( '#aicfab-title' ).inputValue() ) === 'E2E assistant' && ( await admin.locator( '.notice-success, .updated' ).count() ) > 0 );
-	check( 'secret field is empty on the settings page', ( await admin.locator( '#aicfab-secret' ).inputValue() ) === '' );
+	check( 'settings page has no credential inputs', ( await admin.locator( 'input[type=password]' ).count() ) === 0 );
 	await Promise.all( [ admin.waitForNavigation(), admin.click( 'input[value="Test connection"]' ) ] );
 	const notice = ( await admin.locator( '.notice' ).first().textContent() ) || '';
-	check( 'test connection succeeds', /Connected using/.test( notice ), notice.trim() );
+	check( 'test connection succeeds', /Connected\. Model/.test( notice ), notice.trim() );
 	await admin.goto( `${ BASE }/wp-admin/options-privacy.php?tab=policyguide` );
 	check( 'suggested privacy policy text registered', ( await admin.content() ).includes( 'sent from this website to Amazon Bedrock' ) );
 	await admin.close();

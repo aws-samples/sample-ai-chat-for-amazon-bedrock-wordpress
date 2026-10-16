@@ -1,6 +1,6 @@
 <?php
 /**
- * Settings page, MCP server management and connection test.
+ * Settings page and connection test.
  *
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
@@ -13,8 +13,7 @@ namespace AICFAB;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Every state-changing action requires manage_options and a nonce. Secrets are write-only in the UI:
- * they are never rendered back into the page.
+ * Every state-changing action requires manage_options and a nonce.
  */
 final class Admin {
 
@@ -28,9 +27,6 @@ final class Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register' ) );
 		add_action( 'admin_post_aicfab_test', array( __CLASS__, 'handle_test' ) );
-		add_action( 'admin_post_aicfab_mcp_add', array( __CLASS__, 'handle_mcp_add' ) );
-		add_action( 'admin_post_aicfab_mcp_refresh', array( __CLASS__, 'handle_mcp_refresh' ) );
-		add_action( 'admin_post_aicfab_mcp_remove', array( __CLASS__, 'handle_mcp_remove' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( AICFAB_FILE ), array( __CLASS__, 'action_links' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'risk_notices' ) );
 		add_action( 'admin_init', array( __CLASS__, 'privacy_policy' ) );
@@ -48,9 +44,6 @@ final class Admin {
 		if ( 'everyone' === $settings['access'] && '' === trim( (string) $settings['guardrail_id'] ) ) {
 			$messages[] = __( 'AI Chat for Amazon Bedrock is open to anonymous visitors without an Amazon Bedrock Guardrail. Configure a guardrail with prompt-attack and content filters, keep the rate limits low, and set an AWS Budgets alert.', 'ai-chat-for-amazon-bedrock' );
 		}
-		if ( 'stored' === $settings['credential_source'] ) {
-			$messages[] = __( 'AI Chat for Amazon Bedrock uses an access key stored in the database. Prefer an IAM role for the host, or constants in wp-config.php.', 'ai-chat-for-amazon-bedrock' );
-		}
 		foreach ( $messages as $message ) {
 			printf( '<div class="notice notice-warning"><p>%s</p></div>', esc_html( $message ) );
 		}
@@ -63,7 +56,7 @@ final class Admin {
 		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
 			return;
 		}
-		$text = '<p>' . esc_html__( 'When you use the chat assistant on this site, your messages and the previous messages of the conversation are sent from this website to Amazon Bedrock, a service of Amazon Web Services, to generate a reply. Conversations are not stored by this website. If the site enables external tools, the assistant may send parts of your messages to those services.', 'ai-chat-for-amazon-bedrock' ) . '</p>';
+		$text = '<p>' . esc_html__( 'When you use the chat assistant on this site, your messages and the previous messages of the conversation are sent from this website to Amazon Bedrock, a service of Amazon Web Services, to generate a reply. Conversations are not stored by this website.', 'ai-chat-for-amazon-bedrock' ) . '</p>';
 		wp_add_privacy_policy_content( __( 'AI Chat for Amazon Bedrock', 'ai-chat-for-amazon-bedrock' ), wp_kses_post( $text ) );
 	}
 
@@ -142,31 +135,10 @@ final class Admin {
 		$out['max_history_turns']     = Settings::clamp_int( isset( $input['max_history_turns'] ) ? $input['max_history_turns'] : 0, 0, 40 );
 		$out['guardrail_id']          = isset( $input['guardrail_id'] ) && preg_match( '/^[A-Za-z0-9:\/._-]{0,2048}$/', $input['guardrail_id'] ) ? $input['guardrail_id'] : '';
 		$out['guardrail_version']     = isset( $input['guardrail_version'] ) && preg_match( '/^(DRAFT|\d{1,8})?$/', $input['guardrail_version'] ) ? $input['guardrail_version'] : '';
-		foreach ( array( 'enable_streaming', 'enable_site_tools', 'enable_mcp', 'debug' ) as $flag ) {
+		foreach ( array( 'enable_streaming', 'enable_site_tools', 'debug' ) as $flag ) {
 			$out[ $flag ] = ! empty( $input[ $flag ] );
 		}
 
-		$out['credential_source'] = isset( $input['credential_source'] ) && 'stored' === $input['credential_source'] ? 'stored' : 'auto';
-		$key_id                   = isset( $input['access_key_id'] ) ? strtoupper( trim( sanitize_text_field( $input['access_key_id'] ) ) ) : '';
-		if ( '' === $key_id || preg_match( '/^(AKIA|ASIA)[A-Z0-9]{16}$/', $key_id ) ) {
-			$out['access_key_id'] = $key_id;
-		} else {
-			add_settings_error( Settings::OPTION, 'access_key_id', __( 'The access key ID is not valid; the previous value was kept.', 'ai-chat-for-amazon-bedrock' ) );
-		}
-		$secret = isset( $input['secret_access_key'] ) ? trim( (string) $input['secret_access_key'] ) : '';
-		if ( ! empty( $input['clear_secret'] ) ) {
-			$out['secret_access_key'] = '';
-			$out['access_key_id']     = '';
-		} elseif ( '' !== $secret ) {
-			if ( ! Secret_Store::available() ) {
-				add_settings_error( Settings::OPTION, 'secret', __( 'This PHP build lacks libsodium, so the secret key was not saved. Use an IAM role or wp-config.php constants instead.', 'ai-chat-for-amazon-bedrock' ) );
-			} elseif ( ! preg_match( '/^[A-Za-z0-9\/+=]{40}$/', $secret ) ) {
-				add_settings_error( Settings::OPTION, 'secret', __( 'The secret access key is not valid and was not saved.', 'ai-chat-for-amazon-bedrock' ) );
-			} else {
-				$out['secret_access_key'] = Secret_Store::encrypt( $secret );
-			}
-		}
-		Credentials::reset();
 		return $out;
 	}
 
@@ -177,11 +149,9 @@ final class Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$settings   = Settings::all();
-		$servers    = Mcp_Servers::all();
-		$regions    = Settings::regions();
-		$has_secret = '' !== (string) $settings['secret_access_key'];
-		$notice     = get_transient( 'aicfab_notice_' . get_current_user_id() );
+		$settings = Settings::all();
+		$regions  = Settings::regions();
+		$notice   = get_transient( 'aicfab_notice_' . get_current_user_id() );
 		if ( $notice ) {
 			delete_transient( 'aicfab_notice_' . get_current_user_id() );
 		}
@@ -193,9 +163,7 @@ final class Admin {
 	 */
 	public static function handle_test() {
 		self::guard( 'aicfab_test' );
-		Credentials::reset();
 		try {
-			$source   = Credentials::resolve()['source'];
 			$response = Bedrock_Client::from_settings()->converse(
 				array(
 					'messages'        => array(
@@ -208,49 +176,12 @@ final class Admin {
 				)
 			);
 			$usage    = isset( $response['usage']['totalTokens'] ) ? (int) $response['usage']['totalTokens'] : 0;
-			/* translators: 1: credential source, 2: model ID, 3: token count. */
-			self::notice( 'success', sprintf( __( 'Connected using %1$s credentials. Model %2$s answered (%3$d tokens).', 'ai-chat-for-amazon-bedrock' ), $source, Settings::get( 'model_id' ), $usage ) );
+			/* translators: 1: model ID, 2: token count. */
+			self::notice( 'success', sprintf( __( 'Connected. Model %1$s answered (%2$d tokens).', 'ai-chat-for-amazon-bedrock' ), Settings::get( 'model_id' ), $usage ) );
 		} catch ( Bedrock_Exception $e ) {
 			/* translators: 1: error code, 2: message. */
 			self::notice( 'error', sprintf( __( 'Connection failed (%1$s): %2$s', 'ai-chat-for-amazon-bedrock' ), $e->error_code(), $e->getMessage() ) );
 		}
-		self::back();
-	}
-
-	/**
-	 * Add an MCP server.
-	 */
-	public static function handle_mcp_add() {
-		self::guard( 'aicfab_mcp_add' );
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verified in guard().
-		$result = Mcp_Servers::add(
-			isset( $_POST['label'] ) ? sanitize_text_field( wp_unslash( $_POST['label'] ) ) : '',
-			isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ), array( 'https', 'http' ) ) : '',
-			isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : ''
-		);
-		// phpcs:enable
-		self::notice( is_wp_error( $result ) ? 'error' : 'success', is_wp_error( $result ) ? $result->get_error_message() : __( 'MCP server added. Review its tools below before enabling MCP tools.', 'ai-chat-for-amazon-bedrock' ) );
-		self::back();
-	}
-
-	/**
-	 * Refresh an MCP server's pinned tools.
-	 */
-	public static function handle_mcp_refresh() {
-		self::guard( 'aicfab_mcp_refresh' );
-		$id     = isset( $_POST['server'] ) ? sanitize_key( wp_unslash( $_POST['server'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
-		$result = Mcp_Servers::refresh( $id );
-		self::notice( is_wp_error( $result ) ? 'error' : 'success', is_wp_error( $result ) ? $result->get_error_message() : __( 'Tool list refreshed.', 'ai-chat-for-amazon-bedrock' ) );
-		self::back();
-	}
-
-	/**
-	 * Remove an MCP server.
-	 */
-	public static function handle_mcp_remove() {
-		self::guard( 'aicfab_mcp_remove' );
-		Mcp_Servers::remove( isset( $_POST['server'] ) ? sanitize_key( wp_unslash( $_POST['server'] ) ) : '' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in guard().
-		self::notice( 'success', __( 'MCP server removed.', 'ai-chat-for-amazon-bedrock' ) );
 		self::back();
 	}
 

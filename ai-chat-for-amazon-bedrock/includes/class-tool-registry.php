@@ -13,8 +13,8 @@ namespace AICFAB;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Tool calls are only ever produced by the model and executed on the server. Clients cannot name a
- * tool, a server or arguments. MCP tools are limited to the pinned lists an administrator reviewed.
+ * Tool calls are only ever produced by the model and executed on the server against this fixed
+ * registry. Clients cannot name a tool or supply arguments.
  */
 final class Tool_Registry {
 
@@ -52,24 +52,6 @@ final class Tool_Registry {
 						'handler' => $def['handler'],
 					)
 				);
-			}
-		}
-		if ( Settings::get( 'enable_mcp' ) ) {
-			foreach ( Mcp_Servers::all() as $server_id => $server ) {
-				foreach ( isset( $server['tools'] ) ? (array) $server['tools'] : array() as $tool ) {
-					$name   = substr( 'mcp_' . $server_id . '_' . preg_replace( '/[^A-Za-z0-9_-]/', '_', $tool['name'] ), 0, 64 );
-					$schema = json_decode( (string) $tool['inputSchema'] );
-					$registry->add(
-						$name,
-						'' !== $tool['description'] ? $tool['description'] : $tool['name'],
-						is_object( $schema ) ? $schema : (object) array( 'type' => 'object' ),
-						array(
-							'kind'   => 'mcp',
-							'server' => $server_id,
-							'tool'   => $tool['name'],
-						)
-					);
-				}
 			}
 		}
 		return $registry;
@@ -132,31 +114,14 @@ final class Tool_Registry {
 		if ( ! isset( $this->map[ $name ] ) ) {
 			$text   = 'Unknown tool.';
 			$status = 'error';
-		} elseif ( 'site' === $this->map[ $name ]['kind'] ) {
-			$text = (string) wp_json_encode( call_user_func( $this->map[ $name ]['handler'], $input ) );
 		} else {
-			$servers = Mcp_Servers::all();
-			$server  = isset( $servers[ $this->map[ $name ]['server'] ] ) ? $servers[ $this->map[ $name ]['server'] ] : null;
-			$client  = $server ? Mcp_Servers::client( $server ) : new \WP_Error( 'aicfab_mcp', 'Server removed.' );
-			if ( is_wp_error( $client ) ) {
-				$text   = 'Tool unavailable.';
-				$status = 'error';
-			} else {
-				try {
-					$result = $client->call_tool( $this->map[ $name ]['tool'], $input );
-					$text   = $result['text'];
-					$status = $result['is_error'] ? 'error' : 'success';
-				} catch ( \RuntimeException $e ) {
-					$text   = 'Tool call failed.';
-					$status = 'error';
-				}
-			}
+			$text = (string) wp_json_encode( call_user_func( $this->map[ $name ]['handler'], $input ) );
 		}
 
 		return array(
 			'toolResult' => array(
 				'toolUseId' => $id,
-				'content'   => array( array( 'text' => Mcp_Servers::clean_text( '' !== $text ? $text : '(empty result)', self::MAX_RESULT ) ) ),
+				'content'   => array( array( 'text' => Text::clean( '' !== $text ? $text : '(empty result)', self::MAX_RESULT ) ) ),
 				'status'    => $status,
 			),
 		);

@@ -1,0 +1,26 @@
+{
+	"name": "aws-samples/ai-chat-for-amazon-bedrock",
+	"description": "Runtime dependencies of the AI Chat for Amazon Bedrock WordPress plugin.",
+	"license": "MIT-0",
+	"type": "wordpress-plugin",
+	"require": {
+		"php": ">=8.1",
+		"aws/aws-sdk-php": "^3.401.2"
+	},
+	"config": {
+		"optimize-autoloader": true,
+		"platform": {
+			"php": "8.1.0"
+		},
+		"sort-packages": true
+	},
+	"scripts": {
+		"pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices"
+	},
+	"extra": {
+		"aws/aws-sdk-php": [
+			"BedrockRuntime",
+			"Sts"
+		]
+	}
+}

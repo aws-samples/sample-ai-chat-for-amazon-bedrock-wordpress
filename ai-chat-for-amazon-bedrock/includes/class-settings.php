@@ -13,8 +13,8 @@ namespace AICFAB;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings stored in a single option. Secrets are NOT stored here in plain text;
- * see Secret_Store and Admin::sanitize_settings().
+ * Settings stored in a single option. The plugin stores no AWS credentials: the AWS SDK obtains them
+ * from the host (IAM role) through its default credential provider chain.
  */
 final class Settings {
 
@@ -64,10 +64,6 @@ final class Settings {
 			'guardrail_version'     => '',
 			'enable_streaming'      => true,
 			'enable_site_tools'     => false,
-			'enable_mcp'            => false,
-			'credential_source'     => 'auto',
-			'access_key_id'         => '',
-			'secret_access_key'     => '',
 			'debug'                 => false,
 		);
 	}

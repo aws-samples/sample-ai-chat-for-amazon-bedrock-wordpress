@@ -1,7 +1,7 @@
 <?php
 /**
  * Server-side assertions run inside WordPress with WP-CLI: `wp eval-file tests/e2e/checks.php`.
- * Expects a disposable site seeded by tests/e2e/seed.sh and AICFAB_MCP_ALLOW_LOCAL not defined.
+ * Expects a disposable site seeded by tests/e2e/seed.sh.
  * Prints one "PASS"/"FAIL" line per check and exits non-zero on any failure.
  *
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -9,10 +9,8 @@
  */
 
 use AICFAB\Admin;
-use AICFAB\Secret_Store;
 use AICFAB\Settings;
 use AICFAB\Site_Tools;
-use AICFAB\Url_Guard;
 
 $failures = 0;
 $check    = function ( $name, $ok ) use ( &$failures ) {
@@ -43,55 +41,20 @@ $check( 'site search finds the public post', ! empty( $public['results'] ) && fa
 $info = Site_Tools::site_info();
 $check( 'site_info has no admin email or version', ! isset( $info['admin_email'] ) && false === strpos( wp_json_encode( $info ), 'admin@example.com' ) );
 
-// SSRF policy. Meaningless with the local-development override on, so that is a failure in itself.
-$check( 'AICFAB_MCP_ALLOW_LOCAL is off (required for the SSRF checks)', ! Url_Guard::allow_local() );
-$rejected = array(
-	'http://169.254.169.254/latest/meta-data/',
-	'https://169.254.169.254/',
-	'https://127.0.0.1/mcp',
-	'https://localhost/mcp',
-	'https://10.0.0.5/mcp',
-	'https://[::1]/mcp',
-	'https://user:pw@example.com/mcp', // pragma: allowlist secret -- fake userinfo; the guard must reject it.
-	'file:///etc/passwd',
-	'gopher://example.com/',
-);
-foreach ( $rejected as $url ) {
-	$check( "url guard rejects $url", is_wp_error( Url_Guard::check( $url ) ) );
-}
-
-// Secrets: encrypted at rest, never rendered back.
-$fake_id     = 'AKIA' . 'ABCDEFGHIJKLMNOP';
-$fake_secret = 'E2Efake' . str_repeat( 'x', 33 ); // pragma: allowlist secret -- fake 40-character test value.
+// Settings: only administrators can change them; no credential fields exist.
+wp_set_current_user( 0 );
+$check( 'sanitize ignores non-admins', Settings::all()['access'] === Admin::sanitize( array( 'access' => 'everyone' ) )['access'] );
 wp_set_current_user( 1 );
-$saved = Admin::sanitize(
-	array_merge(
-		Settings::all(),
-		array(
-			'credential_source' => 'auto',
-			'access_key_id'     => $fake_id,
-			'secret_access_key' => $fake_secret,
-		)
-	)
-);
-$check( 'secret stored encrypted', 0 === strpos( $saved['secret_access_key'], Secret_Store::PREFIX ) && false === strpos( $saved['secret_access_key'], $fake_secret ) );
-$check( 'secret decrypts', $fake_secret === Secret_Store::decrypt( $saved['secret_access_key'] ) );
-$tampered = substr( $saved['secret_access_key'], 0, -2 ) . 'AA';
-$check( 'tampered ciphertext is rejected', '' === Secret_Store::decrypt( $tampered ) );
-update_option( Settings::OPTION, $saved );
+$saved = Admin::sanitize( array_merge( Settings::all(), array( 'access_key_id' => 'AKIA' . 'ABCDEFGHIJKLMNOP', 'model_id' => '../../x' ) ) );
+$check( 'unknown fields are dropped', ! array_key_exists( 'access_key_id', $saved ) );
+$check( 'invalid model id is rejected', 'us.amazon.nova-lite-v1:0' === $saved['model_id'] );
 ob_start();
 Admin::render();
 $html = ob_get_clean();
-$check( 'settings page does not render the secret', false === strpos( $html, $fake_secret ) && false === strpos( $html, $saved['secret_access_key'] ) );
-$kept = Admin::sanitize( array_merge( Settings::all(), array( 'secret_access_key' => '' ) ) );
-$check( 'blank secret keeps the stored one', $kept['secret_access_key'] === $saved['secret_access_key'] );
-$cleared = Admin::sanitize( array_merge( Settings::all(), array( 'clear_secret' => '1' ) ) );
-$check( 'clear removes key pair', '' === $cleared['secret_access_key'] && '' === $cleared['access_key_id'] );
-update_option( Settings::OPTION, $cleared );
+$check( 'settings page has no credential inputs', false === stripos( $html, 'secret' ) && false === strpos( $html, 'access_key' ) );
 wp_set_current_user( 0 );
-$check( 'sanitize ignores non-admins', Settings::all()['access'] === Admin::sanitize( array( 'access' => 'everyone' ) )['access'] );
 
 $autoload = wp_load_alloptions();
-$check( 'MCP server list is not autoloaded', ! array_key_exists( 'aicfab_mcp_servers', $autoload ) );
+$check( 'only one plugin option exists', array( 'aicfab_settings' ) === array_values( array_filter( array_keys( $autoload ), static function ( $k ) { return 0 === strpos( $k, 'aicfab' ); } ) ) );
 
 exit( $failures ? 1 : 0 );

@@ -39,10 +39,9 @@ final class Plugin {
 	}
 
 	/**
-	 * Activation: store defaults without autoloading secrets on every request.
+	 * Activation: store defaults.
 	 */
 	public static function activate() {
 		add_option( Settings::OPTION, Settings::defaults() );
-		add_option( Mcp_Servers::OPTION, array(), '', false );
 	}
 }

@@ -33,14 +33,10 @@ function wp_check_invalid_utf8( $text, $strip = false ) { // phpcs:ignore
 	return mb_check_encoding( $text, 'UTF-8' ) ? $text : ( $strip ? mb_convert_encoding( $text, 'UTF-8', 'UTF-8' ) : '' );
 }
 
-$base = dirname( __DIR__ ) . '/ai-chat-for-amazon-bedrock/includes/';
-require_once $base . 'class-settings.php';
-require_once $base . 'class-sigv4.php';
-require_once $base . 'class-event-stream-decoder.php';
-require_once $base . 'class-bedrock-exception.php';
-require_once $base . 'class-stream-state.php';
-require_once $base . 'class-bedrock-client.php';
-require_once $base . 'class-url-guard.php';
-require_once $base . 'class-conversation.php';
-require_once $base . 'class-mcp-client.php';
-require_once $base . 'class-reasoning-filter.php';
+function wp_json_encode( $data, $options = 0, $depth = 512 ) { return json_encode( $data, $options, $depth ); } // phpcs:ignore
+
+$plugin = dirname( __DIR__ ) . '/ai-chat-for-amazon-bedrock/';
+require_once $plugin . 'vendor/autoload.php';
+foreach ( array( 'settings', 'bedrock-exception', 'stream-state', 'bedrock-client', 'text', 'conversation', 'reasoning-filter' ) as $class ) {
+	require_once $plugin . 'includes/class-' . $class . '.php';
+}

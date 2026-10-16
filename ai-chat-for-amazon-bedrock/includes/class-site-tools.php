@@ -135,7 +135,7 @@ final class Site_Tools {
 			'title'   => get_the_title( $post ),
 			'url'     => get_permalink( $post ),
 			'date'    => get_the_date( 'Y-m-d', $post ),
-			'content' => Mcp_Servers::clean_text( self::plain_text( $post->post_content ), self::MAX_CONTENT ),
+			'content' => Text::clean( self::plain_text( $post->post_content ), self::MAX_CONTENT ),
 		);
 	}
 

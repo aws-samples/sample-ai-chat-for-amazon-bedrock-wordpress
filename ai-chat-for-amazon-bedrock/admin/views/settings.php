@@ -1,6 +1,6 @@
 <?php
 /**
- * Settings page. Variables: $settings, $servers, $regions, $has_secret, $notice.
+ * Settings page. Variables: $settings, $regions, $notice.
  *
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
@@ -67,29 +67,7 @@ $aicfab_opt = AICFAB\Settings::OPTION;
 		</table>
 
 		<h2><?php esc_html_e( 'AWS credentials', 'ai-chat-for-amazon-bedrock' ); ?></h2>
-		<p><?php esc_html_e( 'Recommended: run WordPress on AWS with an IAM role (EC2 instance profile, ECS task role or EKS Pod Identity / IRSA) that allows only bedrock:InvokeModel and bedrock:InvokeModelWithResponseStream on the model you use. No key is then stored anywhere. Alternatively define AICFAB_AWS_ACCESS_KEY_ID and AICFAB_AWS_SECRET_ACCESS_KEY in wp-config.php.', 'ai-chat-for-amazon-bedrock' ); ?></p>
-		<table class="form-table" role="presentation">
-			<tr>
-				<th scope="row"><?php esc_html_e( 'Source', 'ai-chat-for-amazon-bedrock' ); ?></th>
-				<td>
-					<label><input type="radio" name="<?php echo esc_attr( $aicfab_opt ); ?>[credential_source]" value="auto" <?php checked( $settings['credential_source'], 'auto' ); ?> /> <?php esc_html_e( 'Automatic: wp-config.php constants, environment, or IAM role', 'ai-chat-for-amazon-bedrock' ); ?></label><br />
-					<label><input type="radio" name="<?php echo esc_attr( $aicfab_opt ); ?>[credential_source]" value="stored" <?php checked( $settings['credential_source'], 'stored' ); ?> /> <?php esc_html_e( 'Access key stored in the database (encrypted; not recommended)', 'ai-chat-for-amazon-bedrock' ); ?></label>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="aicfab-key-id"><?php esc_html_e( 'Access key ID', 'ai-chat-for-amazon-bedrock' ); ?></label></th>
-				<td><input id="aicfab-key-id" class="regular-text code" type="text" autocomplete="off" name="<?php echo esc_attr( $aicfab_opt ); ?>[access_key_id]" value="<?php echo esc_attr( $settings['access_key_id'] ); ?>" /></td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="aicfab-secret"><?php esc_html_e( 'Secret access key', 'ai-chat-for-amazon-bedrock' ); ?></label></th>
-				<td>
-					<input id="aicfab-secret" class="regular-text code" type="password" autocomplete="new-password" name="<?php echo esc_attr( $aicfab_opt ); ?>[secret_access_key]" value="" placeholder="<?php echo $has_secret ? esc_attr__( 'Stored. Leave blank to keep it.', 'ai-chat-for-amazon-bedrock' ) : ''; ?>" />
-					<?php if ( $has_secret ) : ?>
-						<br /><label><input type="checkbox" name="<?php echo esc_attr( $aicfab_opt ); ?>[clear_secret]" value="1" /> <?php esc_html_e( 'Delete the stored key', 'ai-chat-for-amazon-bedrock' ); ?></label>
-					<?php endif; ?>
-				</td>
-			</tr>
-		</table>
+		<p><?php esc_html_e( 'This plugin does not store AWS keys. The AWS SDK for PHP obtains temporary credentials from the server it runs on: an IAM role for the EC2 instance, ECS task or EKS pod (Pod Identity or IRSA). Grant that role only bedrock:InvokeModel and bedrock:InvokeModelWithResponseStream on the model you use. See the README for the policy.', 'ai-chat-for-amazon-bedrock' ); ?></p>
 
 		<h2><?php esc_html_e( 'Access and limits', 'ai-chat-for-amazon-bedrock' ); ?></h2>
 		<table class="form-table" role="presentation">
@@ -143,12 +121,8 @@ $aicfab_opt = AICFAB\Settings::OPTION;
 				<td><label><input type="checkbox" name="<?php echo esc_attr( $aicfab_opt ); ?>[enable_site_tools]" value="1" <?php checked( $settings['enable_site_tools'] ); ?> /> <?php esc_html_e( 'Let the model search and read published, public posts and pages of this site.', 'ai-chat-for-amazon-bedrock' ); ?></label></td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'MCP servers', 'ai-chat-for-amazon-bedrock' ); ?></th>
-				<td><label><input type="checkbox" name="<?php echo esc_attr( $aicfab_opt ); ?>[enable_mcp]" value="1" <?php checked( $settings['enable_mcp'] ); ?> /> <?php esc_html_e( 'Let the model call tools of the MCP servers listed below. Only add servers you trust: the model decides what to send to them, including text from the conversation.', 'ai-chat-for-amazon-bedrock' ); ?></label></td>
-			</tr>
-			<tr>
 				<th scope="row"><?php esc_html_e( 'Debug log', 'ai-chat-for-amazon-bedrock' ); ?></th>
-				<td><label><input type="checkbox" name="<?php echo esc_attr( $aicfab_opt ); ?>[debug]" value="1" <?php checked( $settings['debug'] ); ?> /> <?php esc_html_e( 'Write Bedrock error codes to the PHP error log when WP_DEBUG_LOG is on. Prompts, responses and credentials are never logged.', 'ai-chat-for-amazon-bedrock' ); ?></label></td>
+				<td><label><input type="checkbox" name="<?php echo esc_attr( $aicfab_opt ); ?>[debug]" value="1" <?php checked( $settings['debug'] ); ?> /> <?php esc_html_e( 'Write Bedrock error codes to the PHP error log when WP_DEBUG_LOG is on. Prompts and responses are never logged.', 'ai-chat-for-amazon-bedrock' ); ?></label></td>
 			</tr>
 		</table>
 
@@ -163,69 +137,4 @@ $aicfab_opt = AICFAB\Settings::OPTION;
 		<?php submit_button( __( 'Test connection', 'ai-chat-for-amazon-bedrock' ), 'secondary', 'submit', false ); ?>
 	</form>
 
-	<h2><?php esc_html_e( 'MCP servers', 'ai-chat-for-amazon-bedrock' ); ?></h2>
-	<p><?php esc_html_e( 'Remote MCP servers using the Streamable HTTP transport. URLs must be https and public. Tool lists are pinned when a server is added or refreshed; review them here.', 'ai-chat-for-amazon-bedrock' ); ?></p>
-	<?php if ( empty( $servers ) ) : ?>
-		<p><em><?php esc_html_e( 'No MCP servers configured.', 'ai-chat-for-amazon-bedrock' ); ?></em></p>
-	<?php else : ?>
-		<table class="widefat striped">
-			<thead><tr>
-				<th><?php esc_html_e( 'Server', 'ai-chat-for-amazon-bedrock' ); ?></th>
-				<th><?php esc_html_e( 'Tools', 'ai-chat-for-amazon-bedrock' ); ?></th>
-				<th><?php esc_html_e( 'Actions', 'ai-chat-for-amazon-bedrock' ); ?></th>
-			</tr></thead>
-			<tbody>
-			<?php foreach ( $servers as $aicfab_id => $aicfab_server ) : ?>
-				<tr>
-					<td><strong><?php echo esc_html( $aicfab_server['label'] ); ?></strong><br /><code><?php echo esc_html( $aicfab_server['url'] ); ?></code>
-						<?php
-						if ( ! empty( $aicfab_server['token'] ) ) :
-							?>
-							<br /><small><?php esc_html_e( 'Bearer token stored', 'ai-chat-for-amazon-bedrock' ); ?></small><?php endif; ?></td>
-					<td>
-						<?php if ( empty( $aicfab_server['tools'] ) ) : ?>
-							<em><?php esc_html_e( 'none', 'ai-chat-for-amazon-bedrock' ); ?></em>
-						<?php else : ?>
-							<ul>
-							<?php foreach ( $aicfab_server['tools'] as $aicfab_tool ) : ?>
-								<li><code><?php echo esc_html( $aicfab_tool['name'] ); ?></code> — <?php echo esc_html( $aicfab_tool['description'] ); ?></li>
-							<?php endforeach; ?>
-							</ul>
-						<?php endif; ?>
-					</td>
-					<td>
-						<?php
-						foreach ( array(
-							'refresh' => __( 'Refresh tools', 'ai-chat-for-amazon-bedrock' ),
-							'remove'  => __( 'Remove', 'ai-chat-for-amazon-bedrock' ),
-						) as $aicfab_action => $aicfab_label ) :
-							?>
-							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline">
-								<input type="hidden" name="action" value="<?php echo esc_attr( 'aicfab_mcp_' . $aicfab_action ); ?>" />
-								<input type="hidden" name="server" value="<?php echo esc_attr( $aicfab_id ); ?>" />
-								<?php wp_nonce_field( 'aicfab_mcp_' . $aicfab_action ); ?>
-								<button type="submit" class="button button-small"><?php echo esc_html( $aicfab_label ); ?></button>
-							</form>
-						<?php endforeach; ?>
-					</td>
-				</tr>
-			<?php endforeach; ?>
-			</tbody>
-		</table>
-	<?php endif; ?>
-
-	<h3><?php esc_html_e( 'Add a server', 'ai-chat-for-amazon-bedrock' ); ?></h3>
-	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-		<input type="hidden" name="action" value="aicfab_mcp_add" />
-		<?php wp_nonce_field( 'aicfab_mcp_add' ); ?>
-		<table class="form-table" role="presentation">
-			<tr><th scope="row"><label for="aicfab-mcp-label"><?php esc_html_e( 'Label', 'ai-chat-for-amazon-bedrock' ); ?></label></th>
-				<td><input id="aicfab-mcp-label" type="text" name="label" maxlength="40" required /></td></tr>
-			<tr><th scope="row"><label for="aicfab-mcp-url"><?php esc_html_e( 'URL', 'ai-chat-for-amazon-bedrock' ); ?></label></th>
-				<td><input id="aicfab-mcp-url" class="regular-text code" type="url" name="url" placeholder="https://example.com/mcp" required /></td></tr>
-			<tr><th scope="row"><label for="aicfab-mcp-token"><?php esc_html_e( 'Bearer token (optional)', 'ai-chat-for-amazon-bedrock' ); ?></label></th>
-				<td><input id="aicfab-mcp-token" class="regular-text code" type="password" autocomplete="new-password" name="token" /></td></tr>
-		</table>
-		<?php submit_button( __( 'Add server', 'ai-chat-for-amazon-bedrock' ), 'secondary' ); ?>
-	</form>
 </div>
