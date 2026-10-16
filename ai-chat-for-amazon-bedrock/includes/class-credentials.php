@@ -130,7 +130,10 @@ final class Credentials {
 		if ( '' === $token ) {
 			return null;
 		}
-		$region   = getenv( 'AWS_REGION' ) ? getenv( 'AWS_REGION' ) : (string) Settings::get( 'region' );
+		$region = getenv( 'AWS_REGION' ) ? (string) getenv( 'AWS_REGION' ) : (string) Settings::get( 'region' );
+		if ( ! Settings::is_region( $region ) ) {
+			return null;
+		}
 		$response = wp_remote_post(
 			'https://sts.' . $region . '.amazonaws.com/',
 			array(
@@ -141,7 +144,7 @@ final class Credentials {
 					'Action'           => 'AssumeRoleWithWebIdentity',
 					'Version'          => '2011-06-15',
 					'RoleArn'          => $role_arn,
-					'RoleSessionName'  => 'aicfab-' . substr( md5( home_url() ), 0, 8 ) . '-' . time(),
+					'RoleSessionName'  => 'aicfab-' . substr( hash( 'sha256', home_url() ), 0, 8 ) . '-' . time(),
 					'WebIdentityToken' => $token,
 					'DurationSeconds'  => 3600,
 				),
