@@ -115,4 +115,7 @@ diagram, trust boundaries, STRIDE per element. Evidence refers to code and tests
 | In-WordPress checks (`tests/e2e/checks.php`), plugin installed from the built package | 14 pass |
 | HTTP end-to-end against Amazon Bedrock (`tests/e2e/run-http.sh`) | 23 pass (3 consecutive runs) |
 | Browser checks (`tests/e2e/browser-check.mjs`) | 10 pass |
-| Probe (GitLab, automatic on push) and ASH v3.7.1 | see the review ticket |
+| Probe (GitLab, automatic on push: semgrep, gitleaks, bandit, checkov, cfn_nag, grype, syft) | 0 findings |
+| Holmes (default security template: malware and code scanners) | 0 findings |
+| ShellCheck 0.11.0 (`bin/build.sh`, `tests/e2e/*.sh`) | 0 findings |
+| License review | Shipped dependencies: Apache-2.0 and MIT only (AWS SDK for PHP and its dependencies). Development-only tools are not distributed. |
