@@ -1,0 +1,448 @@
+# Copyright (C) 2026 Amazon Web Services
+# This file is distributed under the MIT-0.
+msgid ""
+msgstr ""
+"Project-Id-Version: AI Chat for Amazon Bedrock 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/aws-samples/sample-ai-chat-for-amazon-bedrock-wordpress/issues\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-16T06:44:17+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: ai-chat-for-amazon-bedrock\n"
+
+#. Plugin Name of the plugin
+#: ai-chat-for-amazon-bedrock.php
+#: admin/views/settings.php:16
+#: includes/class-admin.php:42
+msgid "AI Chat for Amazon Bedrock"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: ai-chat-for-amazon-bedrock.php
+msgid "https://github.com/aws-samples/sample-ai-chat-for-amazon-bedrock-wordpress"
+msgstr ""
+
+#. Description of the plugin
+#: ai-chat-for-amazon-bedrock.php
+msgid "Sample plugin: a chat assistant for WordPress powered by the Amazon Bedrock Converse API, with optional read-only site tools and MCP tools."
+msgstr ""
+
+#. Author of the plugin
+#: ai-chat-for-amazon-bedrock.php
+msgid "Amazon Web Services"
+msgstr ""
+
+#: admin/views/settings.php:23
+msgid "Add the chat to any page with the shortcode"
+msgstr ""
+
+#: admin/views/settings.php:28
+msgid "Amazon Bedrock"
+msgstr ""
+
+#: admin/views/settings.php:31
+msgid "Region"
+msgstr ""
+
+#: admin/views/settings.php:39
+msgid "Model or inference profile ID"
+msgstr ""
+
+#: admin/views/settings.php:41
+msgid "Any Bedrock model that supports the Converse API, for example us.amazon.nova-lite-v1:0. Tool use requires a model that supports tools."
+msgstr ""
+
+#: admin/views/settings.php:44
+msgid "Max output tokens"
+msgstr ""
+
+#: admin/views/settings.php:48
+msgid "Temperature"
+msgstr ""
+
+#: admin/views/settings.php:52
+msgid "System prompt"
+msgstr ""
+
+#: admin/views/settings.php:56
+msgid "Guardrail (recommended)"
+msgstr ""
+
+#: admin/views/settings.php:58
+msgid "ID or ARN"
+msgstr ""
+
+#: admin/views/settings.php:59
+msgid "Version"
+msgstr ""
+
+#: admin/views/settings.php:60
+msgid "An Amazon Bedrock Guardrail filters harmful content and prompt attacks in both directions."
+msgstr ""
+
+#: admin/views/settings.php:64
+msgid "Streaming"
+msgstr ""
+
+#: admin/views/settings.php:65
+msgid "Stream responses as they are generated (requires the PHP cURL extension and a server that does not buffer responses)."
+msgstr ""
+
+#: admin/views/settings.php:69
+msgid "AWS credentials"
+msgstr ""
+
+#: admin/views/settings.php:70
+msgid "Recommended: run WordPress on AWS with an IAM role (EC2 instance profile, ECS task role or EKS Pod Identity / IRSA) that allows only bedrock:InvokeModel and bedrock:InvokeModelWithResponseStream on the model you use. No key is then stored anywhere. Alternatively define AICFAB_AWS_ACCESS_KEY_ID and AICFAB_AWS_SECRET_ACCESS_KEY in wp-config.php."
+msgstr ""
+
+#: admin/views/settings.php:73
+msgid "Source"
+msgstr ""
+
+#: admin/views/settings.php:75
+msgid "Automatic: wp-config.php constants, environment, or IAM role"
+msgstr ""
+
+#: admin/views/settings.php:76
+msgid "Access key stored in the database (encrypted; not recommended)"
+msgstr ""
+
+#: admin/views/settings.php:80
+msgid "Access key ID"
+msgstr ""
+
+#: admin/views/settings.php:84
+msgid "Secret access key"
+msgstr ""
+
+#: admin/views/settings.php:86
+msgid "Stored. Leave blank to keep it."
+msgstr ""
+
+#: admin/views/settings.php:88
+msgid "Delete the stored key"
+msgstr ""
+
+#: admin/views/settings.php:94
+msgid "Access and limits"
+msgstr ""
+
+#: admin/views/settings.php:97
+msgid "Who can chat"
+msgstr ""
+
+#: admin/views/settings.php:101
+msgid "Logged-in users only (recommended)"
+msgstr ""
+
+#: admin/views/settings.php:102
+msgid "Everyone, including anonymous visitors. Every visitor spends your AWS budget; keep the limits below low and set an AWS Budgets alert."
+msgstr ""
+
+#: admin/views/settings.php:103
+msgid "Nobody (chat disabled)"
+msgstr ""
+
+#: admin/views/settings.php:113
+msgid "Messages per visitor per minute"
+msgstr ""
+
+#: admin/views/settings.php:114
+msgid "Messages per day, whole site"
+msgstr ""
+
+#: admin/views/settings.php:115
+msgid "Maximum characters per message"
+msgstr ""
+
+#: admin/views/settings.php:116
+msgid "Previous turns sent as context"
+msgstr ""
+
+#: admin/views/settings.php:127
+msgid "Chat appearance"
+msgstr ""
+
+#: admin/views/settings.php:130
+msgid "Title"
+msgstr ""
+
+#: admin/views/settings.php:134
+msgid "Welcome message"
+msgstr ""
+
+#: admin/views/settings.php:139
+#: admin/views/settings.php:174
+msgid "Tools"
+msgstr ""
+
+#: admin/views/settings.php:142
+msgid "Site content"
+msgstr ""
+
+#: admin/views/settings.php:143
+msgid "Let the model search and read published, public posts and pages of this site."
+msgstr ""
+
+#: admin/views/settings.php:146
+#: admin/views/settings.php:166
+msgid "MCP servers"
+msgstr ""
+
+#: admin/views/settings.php:147
+msgid "Let the model call tools of the MCP servers listed below. Only add servers you trust: the model decides what to send to them, including text from the conversation."
+msgstr ""
+
+#: admin/views/settings.php:150
+msgid "Debug log"
+msgstr ""
+
+#: admin/views/settings.php:151
+msgid "Write Bedrock error codes to the PHP error log when WP_DEBUG_LOG is on. Prompts, responses and credentials are never logged."
+msgstr ""
+
+#: admin/views/settings.php:158
+msgid "Test the connection"
+msgstr ""
+
+#: admin/views/settings.php:162
+msgid "Sends one short request to the saved model (a few tokens)."
+msgstr ""
+
+#: admin/views/settings.php:163
+msgid "Test connection"
+msgstr ""
+
+#: admin/views/settings.php:167
+msgid "Remote MCP servers using the Streamable HTTP transport. URLs must be https and public. Tool lists are pinned when a server is added or refreshed; review them here."
+msgstr ""
+
+#: admin/views/settings.php:169
+msgid "No MCP servers configured."
+msgstr ""
+
+#: admin/views/settings.php:173
+msgid "Server"
+msgstr ""
+
+#: admin/views/settings.php:175
+msgid "Actions"
+msgstr ""
+
+#: admin/views/settings.php:184
+msgid "Bearer token stored"
+msgstr ""
+
+#: admin/views/settings.php:187
+msgid "none"
+msgstr ""
+
+#: admin/views/settings.php:199
+msgid "Refresh tools"
+msgstr ""
+
+#: admin/views/settings.php:200
+msgid "Remove"
+msgstr ""
+
+#: admin/views/settings.php:217
+msgid "Add a server"
+msgstr ""
+
+#: admin/views/settings.php:222
+msgid "Label"
+msgstr ""
+
+#: admin/views/settings.php:224
+msgid "URL"
+msgstr ""
+
+#: admin/views/settings.php:226
+msgid "Bearer token (optional)"
+msgstr ""
+
+#: admin/views/settings.php:229
+msgid "Add server"
+msgstr ""
+
+#: includes/class-admin.php:43
+msgid "AI Chat (Bedrock)"
+msgstr ""
+
+#: includes/class-admin.php:57
+msgid "Settings"
+msgstr ""
+
+#: includes/class-admin.php:97
+msgid "The model ID is not valid; the previous value was kept."
+msgstr ""
+
+#: includes/class-admin.php:121
+msgid "The access key ID is not valid; the previous value was kept."
+msgstr ""
+
+#: includes/class-admin.php:129
+msgid "This PHP build lacks libsodium, so the secret key was not saved. Use an IAM role or wp-config.php constants instead."
+msgstr ""
+
+#: includes/class-admin.php:131
+msgid "The secret access key is not valid and was not saved."
+msgstr ""
+
+#. translators: 1: credential source, 2: model ID, 3: token count.
+#: includes/class-admin.php:179
+#, php-format
+msgid "Connected using %1$s credentials. Model %2$s answered (%3$d tokens)."
+msgstr ""
+
+#. translators: 1: error code, 2: message.
+#: includes/class-admin.php:182
+#, php-format
+msgid "Connection failed (%1$s): %2$s"
+msgstr ""
+
+#: includes/class-admin.php:199
+msgid "MCP server added. Review its tools below before enabling MCP tools."
+msgstr ""
+
+#: includes/class-admin.php:210
+msgid "Tool list refreshed."
+msgstr ""
+
+#: includes/class-admin.php:220
+msgid "MCP server removed."
+msgstr ""
+
+#: includes/class-admin.php:231
+msgid "You are not allowed to do this."
+msgstr ""
+
+#. translators: 1: error code, 2: error message. Shown to administrators only.
+#: includes/class-chat-service.php:174
+#, php-format
+msgid "Amazon Bedrock error (%1$s): %2$s"
+msgstr ""
+
+#: includes/class-chat-service.php:177
+msgid "The assistant is busy right now. Please try again in a moment."
+msgstr ""
+
+#: includes/class-chat-service.php:179
+msgid "Sorry, the assistant is unavailable right now."
+msgstr ""
+
+#: includes/class-conversation.php:34
+msgid "Please enter a message."
+msgstr ""
+
+#. translators: %d: maximum number of characters.
+#: includes/class-conversation.php:38
+#, php-format
+msgid "Messages are limited to %d characters."
+msgstr ""
+
+#: includes/class-frontend.php:59
+#: includes/class-rest-controller.php:77
+msgid "Please log in to use the assistant."
+msgstr ""
+
+#: includes/class-frontend.php:61
+msgid "Log in"
+msgstr ""
+
+#: includes/class-frontend.php:77
+msgid "Thinking…"
+msgstr ""
+
+#: includes/class-frontend.php:78
+msgid "Looking that up…"
+msgstr ""
+
+#: includes/class-frontend.php:79
+msgid "Sorry, something went wrong. Please try again."
+msgstr ""
+
+#: includes/class-frontend.php:80
+msgid "Your message is too long."
+msgstr ""
+
+#: includes/class-mcp-servers.php:46
+msgid "The maximum number of MCP servers is reached."
+msgstr ""
+
+#: includes/class-mcp-servers.php:51
+msgid "The label must contain letters or digits."
+msgstr ""
+
+#: includes/class-mcp-servers.php:54
+msgid "A server with this label already exists."
+msgstr ""
+
+#: includes/class-mcp-servers.php:62
+msgid "This PHP build lacks libsodium, so tokens cannot be stored securely."
+msgstr ""
+
+#: includes/class-mcp-servers.php:90
+msgid "Unknown MCP server."
+msgstr ""
+
+#: includes/class-rate-limiter.php:38
+msgid "The assistant has reached its daily limit. Please try again tomorrow."
+msgstr ""
+
+#: includes/class-rate-limiter.php:45
+msgid "You are sending messages too quickly. Please wait a minute."
+msgstr ""
+
+#: includes/class-url-guard.php:35
+msgid "Enter an absolute URL."
+msgstr ""
+
+#: includes/class-url-guard.php:38
+msgid "The URL must not contain credentials. Use the token field instead."
+msgstr ""
+
+#: includes/class-url-guard.php:42
+msgid "Only https:// URLs are allowed."
+msgstr ""
+
+#: includes/class-url-guard.php:45
+msgid "The URL is too long."
+msgstr ""
+
+#: includes/class-url-guard.php:51
+msgid "The host name could not be resolved."
+msgstr ""
+
+#: includes/class-url-guard.php:55
+msgid "The URL resolves to a private, loopback or reserved address."
+msgstr ""
+
+#: includes/class-url-guard.php:59
+msgid "WordPress rejected this URL as unsafe."
+msgstr ""
+
+#: public/views/chat.php:20
+msgid "Your message"
+msgstr ""
+
+#: public/views/chat.php:21
+msgid "Type your message…"
+msgstr ""
+
+#: public/views/chat.php:23
+msgid "Clear"
+msgstr ""
+
+#: public/views/chat.php:24
+msgid "Send"
+msgstr ""
+
+#: public/views/chat.php:27
+msgid "AI-generated responses may be inaccurate. Do not share sensitive information."
+msgstr ""

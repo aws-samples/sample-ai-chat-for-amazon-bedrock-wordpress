@@ -1,0 +1,13 @@
+{
+	"name": "aicfab-e2e",
+	"private": true,
+	"type": "module",
+	"license": "MIT-0",
+	"description": "Browser check for the sample plugin. Uses a locally installed Google Chrome; no browser download.",
+	"scripts": {
+		"browser-check": "node browser-check.mjs"
+	},
+	"devDependencies": {
+		"playwright-core": "1.64.1"
+	}
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ruleset name="ai-chat-for-amazon-bedrock">
+	<description>WordPress Coding Standards (incl. security sniffs) and PHP 7.4+ compatibility for the plugin.</description>
+	<file>ai-chat-for-amazon-bedrock</file>
+	<arg name="extensions" value="php"/>
+	<arg value="sp"/>
+
+	<config name="testVersion" value="7.4-"/>
+	<config name="minimum_wp_version" value="6.3"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress">
+		<!-- Class files are named class-*.php but hold namespaced classes; PSR-4 style names are clearer here. -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<!-- Exception messages are never printed raw: they are escaped where displayed (esc_html() in admin
+		     notices; JSON rendered with textContent on the front end). Escaping at throw time would double-escape. -->
+		<exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped"/>
+	</rule>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="ai-chat-for-amazon-bedrock"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="aicfab"/>
+				<element value="AICFAB"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>
