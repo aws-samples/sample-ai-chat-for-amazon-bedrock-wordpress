@@ -27,7 +27,14 @@ function aicfab_uninstall_site() {
 }
 
 if ( is_multisite() ) {
-	foreach ( get_sites( array( 'fields' => 'ids' ) ) as $aicfab_site_id ) {
+	// 'number' => 0 lifts get_sites()' default cap of 100 sites.
+	$aicfab_site_ids = get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	);
+	foreach ( $aicfab_site_ids as $aicfab_site_id ) {
 		switch_to_blog( $aicfab_site_id );
 		aicfab_uninstall_site();
 		restore_current_blog();

@@ -53,7 +53,8 @@ final class Conversation {
 				'content' => array( array( 'text' => self::truncate( $turn_text, $limit ) ) ),
 			);
 		}
-		$turns = array_slice( $turns, -1 * max( 0, $max_turns ) );
+		// array_slice( $turns, -0 ) would keep every turn, so 0 must mean "no history" explicitly.
+		$turns = $max_turns > 0 ? array_slice( $turns, -1 * $max_turns ) : array();
 
 		// Enforce alternation ending in an assistant turn, starting with a user turn.
 		$messages = array();

@@ -70,6 +70,23 @@ final class ValidationTest extends TestCase {
 		$this->assertCount( 5, $messages );
 	}
 
+	public function test_zero_history_turns_sends_no_history() {
+		$history = array(
+			array(
+				'role' => 'user',
+				'text' => 'earlier question',
+			),
+			array(
+				'role' => 'assistant',
+				'text' => 'earlier answer',
+			),
+		);
+		$messages = Conversation::build( 'now', $history, 100, 0 );
+		$this->assertCount( 1, $messages );
+		$this->assertSame( 'user', $messages[0]['role'] );
+		$this->assertSame( 'now', $messages[0]['content'][0]['text'] );
+	}
+
 	public function test_rejects_empty_and_oversized_messages() {
 		$this->assertInstanceOf( WP_Error::class, Conversation::build( "  \x01 ", array(), 100, 4 ) );
 		$this->assertInstanceOf( WP_Error::class, Conversation::build( str_repeat( 'é', 101 ), array(), 100, 4 ) );

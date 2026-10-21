@@ -92,9 +92,9 @@ diagram, trust boundaries, STRIDE per element. Evidence refers to code and tests
 | # | Threat | Mitigation | Evidence |
 |---|---|---|---|
 | E1 | Stored or reflected XSS from model output or settings. | The chat renders all model output with `textContent`; admin views escape all output; WordPress Coding Standards security sniffs pass. | Browser check: HTML in model output not interpreted; `composer lint`. |
-| E2 | The model invokes arbitrary code or PHP functions. | Tool names map to a fixed server-side registry of three read-only functions; unknown names return an error; no `eval`, `unserialize`, shell or file writes. | `composer lint`; Probe and ASH (semgrep, bandit). |
+| E2 | The model invokes arbitrary code or PHP functions. | Tool names map to a fixed server-side registry of three read-only functions; unknown names return an error; no `eval`, `unserialize`, shell or file writes. | `composer lint`; static analysis with semgrep and bandit (ASH). |
 | E3 | The IAM role has more rights than needed. | README provides a least-privilege policy limited to `bedrock:InvokeModel*` on the chosen inference profile and models. | Documentation. |
-| E4 | A vulnerable third-party dependency. | Only the AWS SDK for PHP and its dependencies, pinned in `composer.lock`; scanned by grype (Probe/ASH) and `composer audit`; SBOM produced by syft. | Probe; ASH. |
+| E4 | A vulnerable third-party dependency. | Only the AWS SDK for PHP and its dependencies, pinned in `composer.lock`; scanned by grype (ASH) and `composer audit`; SBOM produced by syft. | ASH; `composer audit`. |
 
 ## Residual risks and assumptions
 
@@ -115,7 +115,7 @@ diagram, trust boundaries, STRIDE per element. Evidence refers to code and tests
 | In-WordPress checks (`tests/e2e/checks.php`), plugin installed from the built package | 14 pass |
 | HTTP end-to-end against Amazon Bedrock (`tests/e2e/run-http.sh`) | 23 pass (3 consecutive runs) |
 | Browser checks (`tests/e2e/browser-check.mjs`) | 10 pass |
-| Probe (GitLab, automatic on push: semgrep, gitleaks, bandit, checkov, cfn_nag, grype, syft) | 0 findings |
-| Holmes (default security template: malware and code scanners) | 0 findings |
+| Automated repository security scan (semgrep, gitleaks, bandit, checkov, cfn_nag, grype, syft) | 0 findings |
+| Malware and code security scan | 0 findings |
 | ShellCheck 0.11.0 (`bin/build.sh`, `tests/e2e/*.sh`) | 0 findings |
 | License review | Shipped dependencies: Apache-2.0 and MIT only (AWS SDK for PHP and its dependencies). Development-only tools are not distributed. |

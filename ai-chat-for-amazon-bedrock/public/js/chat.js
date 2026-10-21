@@ -12,6 +12,12 @@
 		return;
 	}
 
+	// Keep the most recent config.maxTurns turns. slice( -0 ) would keep them all, so 0 means none.
+	function recent( turns ) {
+		const max = Number( config.maxTurns ) || 0;
+		return max > 0 ? turns.slice( -max ) : [];
+	}
+
 	function headers() {
 		const h = { 'Content-Type': 'application/json' };
 		if ( config.nonce ) {
@@ -129,7 +135,7 @@
 					headers: headers(),
 					body: JSON.stringify( {
 						message: text,
-						history: history.slice( -config.maxTurns ),
+						history: recent( history ),
 						stream: !! config.stream,
 					} ),
 				} );
@@ -173,7 +179,7 @@
 			}
 			if ( ! failed ) {
 				history.push( { role: 'user', text: text }, { role: 'assistant', text: answer.trim() } );
-				history = history.slice( -config.maxTurns );
+				history = recent( history );
 			}
 		} );
 	}

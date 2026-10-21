@@ -133,8 +133,8 @@ final class Admin {
 		$out['daily_message_cap']     = Settings::clamp_int( isset( $input['daily_message_cap'] ) ? $input['daily_message_cap'] : 0, 1, 100000 );
 		$out['max_input_chars']       = Settings::clamp_int( isset( $input['max_input_chars'] ) ? $input['max_input_chars'] : 0, 100, 20000 );
 		$out['max_history_turns']     = Settings::clamp_int( isset( $input['max_history_turns'] ) ? $input['max_history_turns'] : 0, 0, 40 );
-		$out['guardrail_id']          = isset( $input['guardrail_id'] ) && preg_match( '/^[A-Za-z0-9:\/._-]{0,2048}$/', $input['guardrail_id'] ) ? $input['guardrail_id'] : '';
-		$out['guardrail_version']     = isset( $input['guardrail_version'] ) && preg_match( '/^(DRAFT|\d{1,8})?$/', $input['guardrail_version'] ) ? $input['guardrail_version'] : '';
+		$out['guardrail_id']          = isset( $input['guardrail_id'] ) && is_string( $input['guardrail_id'] ) && preg_match( '/^[A-Za-z0-9:\/._-]{0,2048}$/', $input['guardrail_id'] ) ? $input['guardrail_id'] : '';
+		$out['guardrail_version']     = isset( $input['guardrail_version'] ) && is_string( $input['guardrail_version'] ) && preg_match( '/^(DRAFT|\d{1,8})?$/', $input['guardrail_version'] ) ? $input['guardrail_version'] : '';
 		foreach ( array( 'enable_streaming', 'enable_site_tools', 'debug' ) as $flag ) {
 			$out[ $flag ] = ! empty( $input[ $flag ] );
 		}

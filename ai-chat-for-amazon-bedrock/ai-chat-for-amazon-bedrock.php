@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/aws-samples/sample-ai-chat-for-amazon-bedrock-wordpress
  * Description:       Sample plugin: a chat assistant for WordPress powered by the Amazon Bedrock Converse API, with optional read-only tools over this site's public content.
  * Version:           1.0.0
- * Requires at least: 6.2
+ * Requires at least: 6.3
  * Requires PHP:      8.1
  * Author:            Amazon Web Services
  * License:           MIT-0

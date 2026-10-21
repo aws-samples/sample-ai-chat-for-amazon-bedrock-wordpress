@@ -1,6 +1,6 @@
 {
 	"name": "aws-samples/sample-ai-chat-for-amazon-bedrock-wordpress",
-	"description": "Development tooling for the AI Chat for Amazon Bedrock sample WordPress plugin. The plugin itself has no runtime dependencies.",
+	"description": "Development tooling (tests, coding standards) for the AI Chat for Amazon Bedrock sample WordPress plugin. Runtime dependencies are in ai-chat-for-amazon-bedrock/composer.json.",
 	"license": "MIT-0",
 	"type": "project",
 	"require": {
